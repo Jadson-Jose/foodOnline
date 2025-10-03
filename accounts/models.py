@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db.models.fields.related import ForeignKey, OneToOneField
+
 
 
 class UserManager(BaseUserManager):
@@ -92,3 +94,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def has_module_perms(self, app_label: str) -> bool:
         return True
+
+
+class UserProfile(models.Model):
+    user = OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(('imagem perfil'), upload_to='users/profile_pictures', blank=True, null=True)
+    cover_photo = models.ImageField(('foto perfil'), upload_to='users/cover_photos', blank=True, null=True)
+    address_line_1 = models.CharField(("endereço"), max_length=50, blank=True, null=True)
+    address_line_2 = models.CharField(("complemento"), max_length=50, blank=True, null=True)
+    country = models.CharField(("país"), max_length=15, blank=True, null=True)
+    state = models.CharField(("estado"), max_length=15, blank=True, null=True)
+    city = models.CharField(("cidade"), max_length=15, blank=True, null=True)
+    pin_code = models.CharField(("CEP"), max_length=6, blank=True, null=True)
+    latitude = models.CharField(("latitude"), max_length=20, blank=True, null=True)
+    logitude = models.CharField(("longitude"), max_length=20, blank=True, null=True)
+    created_at = models.DateTimeField(("Criado em"), auto_now_add=True)
+    modified_at = models.DateTimeField(("modificado em"), auto_now=True)
+    
+    def __str__(self) -> str:
+        return self.user.email
+
+
