@@ -107,7 +107,7 @@ class UserProfile(models.Model):
     city = models.CharField(("cidade"), max_length=15, blank=True, null=True)
     pin_code = models.CharField(("CEP"), max_length=6, blank=True, null=True)
     latitude = models.CharField(("latitude"), max_length=20, blank=True, null=True)
-    logitude = models.CharField(("longitude"), max_length=20, blank=True, null=True)
+    longitude = models.CharField(("longitude"), max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(("Criado em"), auto_now_add=True)
     modified_at = models.DateTimeField(("modificado em"), auto_now=True)
     
