@@ -1,0 +1,438 @@
+{% extends "base.html" %} 
+{% load static %} 
+
+{% block content %}
+<style>
+  /* Seu CSS permanece igual - está ótimo! */
+  :root {
+    --primary: #ff5722;
+    --primary-dark: #e64a19;
+    --secondary: #f4f6f8;
+    --text: #333;
+    --text-light: #666;
+    --border: #e0e0e0;
+    --error: #d32f2f;
+    --success: #388e3c;
+  }
+  
+  .registration-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--secondary) 0%, #e0e7ff 100%);
+    padding: 2rem 1rem;
+    font-family: "Poppins", sans-serif;
+  }
+  
+  .registration-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    min-height: 600px;
+  }
+  
+  .registration-hero {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .registration-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+    background-size: cover;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .registration-hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .registration-hero p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+  
+  .hero-features {
+    margin-top: 2rem;
+  }
+  
+  .feature {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-icon {
+    background: rgba(255, 255, 255, 0.2);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 1rem;
+  }
+  
+  .registration-form {
+    flex: 1.2;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-header {
+    margin-bottom: 2rem;
+  }
+  
+  .form-header h2 {
+    font-size: 1.8rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .form-header p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+  }
+  
+  .form-fields {
+    flex: 1;
+  }
+  
+  .field-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-field {
+    margin-bottom: 1.2rem;
+  }
+  
+  .form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  
+  .form-field input, .form-field select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+  .form-field input:focus, .form-field select:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
+  }
+  
+  .error-messages {
+    background: rgba(211, 47, 47, 0.05);
+    border-left: 4px solid var(--error);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0 4px 4px 0;
+  }
+  
+  .error-messages ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+  
+  .error-messages li {
+    color: var(--error);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .field-error {
+    color: var(--error);
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .field-error::before {
+    content: "⚠";
+    margin-right: 0.4rem;
+    font-size: 0.8rem;
+  }
+  
+  .form-actions {
+    margin-top: 1.5rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.2);
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 87, 34, 0.3);
+  }
+  
+  .form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+  
+  .form-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-section:last-of-type {
+    border-bottom: none;
+  }
+
+  .form-section h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .registration-card {
+      flex-direction: column;
+    }
+    
+    .registration-hero {
+      padding: 2rem 1.5rem;
+    }
+    
+    .registration-form {
+      padding: 2rem 1.5rem;
+    }
+    
+    .field-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<section class="registration-container">
+  <div class="registration-card">
+    <!-- Hero Section -->
+    <div class="registration-hero">
+      <div class="hero-content">
+        <h1>Join FoodOnline Marketplace</h1>
+        <p>Connect with food lovers and grow your business with our platform. Register now to get started!</p>
+        
+        <div class="hero-features">
+          <div class="feature">
+            <div class="feature-icon">✓</div>
+            <span>Reach thousands of customers</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">✓</div>
+            <span>Easy order management</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">✓</div>
+            <span>Secure payment processing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Form Section -->
+    <div class="registration-form">
+      <div class="form-header">
+        <h2>Create Vendor Account</h2>
+        <p>Fill in your business details to get started</p>
+      </div>
+      
+      <form method="POST" action="{% url 'registerVendor' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Display messages -->
+        {% include "includes/alerts.html" %}
+        
+        <!-- Display form-level errors -->
+        {% if form.non_field_errors or v_form.non_field_errors %}
+        <div class="error-messages">
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+            {% for error in v_form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        
+        <div class="form-fields">
+          <!-- User Information Section -->
+          <div class="form-section">
+            <h3>User Information</h3>
+            
+            <div class="field-row">
+              <div class="form-field">
+                <label for="id_first_name">First Name</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                  <div class="field-error">{{ form.first_name.errors.0 }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="form-field">
+                <label for="id_last_name">Last Name</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                  <div class="field-error">{{ form.last_name.errors.0 }}</div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-field">
+              <label for="id_email">Email Address</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="field-error">{{ form.email.errors.0 }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-field">
+              <label for="id_username">Username</label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                <div class="field-error">{{ form.username.errors.0 }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-field">
+              <label for="id_password">Password</label>
+              {{ form.password }}
+              {% if form.password.errors %}
+                <div class="field-error">{{ form.password.errors.0 }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-field">
+              <label for="id_confirm_password">Confirm Password</label>
+              {{ form.confirm_password }}
+              {% if form.confirm_password.errors %}
+                <div class="field-error">{{ form.confirm_password.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Vendor Information Section -->
+          <div class="form-section">
+            <h3>Business Information</h3>
+            
+            <div class="form-field">
+              <label for="id_vendor_name">Business Name</label>
+              {{ v_form.vendor_name }}
+              {% if v_form.vendor_name.errors %}
+                <div class="field-error">{{ v_form.vendor_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="form-field">
+              <label for="id_vendor_license">Business License</label>
+              {{ v_form.vendor_license }}
+              {% if v_form.vendor_license.errors %}
+                <div class="field-error">{{ v_form.vendor_license.errors.0 }}</div>
+              {% endif %}
+              <small style="color: var(--text-light); font-size: 0.85rem;">
+                Upload a clear image of your business license
+              </small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Create Vendor Account</button>
+        </div>
+        
+        <div class="form-footer">
+          <p>Already have an account? <a href="#">Sign In</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Add real-time password matching validation
+  document.addEventListener('DOMContentLoaded', function() {
+    const passwordField = document.querySelector('#id_password');
+    const confirmPasswordField = document.querySelector('#id_confirm_password');
+    
+    function validatePasswordMatch() {
+      if (passwordField && confirmPasswordField && passwordField.value && confirmPasswordField.value) {
+        if (passwordField.value !== confirmPasswordField.value) {
+          confirmPasswordField.style.borderColor = 'var(--error)';
+        } else {
+          confirmPasswordField.style.borderColor = 'var(--success)';
+        }
+      }
+    }
+    
+    if (passwordField && confirmPasswordField) {
+      passwordField.addEventListener('input', validatePasswordMatch);
+      confirmPasswordField.addEventListener('input', validatePasswordMatch);
+    }
+  });
+</script>
+{% endblock content %}
