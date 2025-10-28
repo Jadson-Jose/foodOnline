@@ -1,0 +1,864 @@
+{% extends "base.html" %} 
+{% load static %} 
+
+{% block content %}
+<style>
+  /* Mantendo as mesmas variáveis de cores e estilo */
+  :root {
+    --primary: #ff5722;
+    --primary-dark: #e64a19;
+    --secondary: #f4f6f8;
+    --text: #333;
+    --text-light: #666;
+    --border: #e0e0e0;
+    --error: #d32f2f;
+    --success: #388e3c;
+    --warning: #f57c00;
+    --info: #1976d2;
+  }
+  
+  .dashboard-container {
+    min-height: 100vh;
+    background: var(--secondary);
+    font-family: "Poppins", sans-serif;
+    display: flex;
+  }
+  
+  /* Sidebar Styles */
+  .dashboard-sidebar {
+    width: 260px;
+    background: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    z-index: 100;
+  }
+  
+  .sidebar-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  
+  .sidebar-nav {
+    padding: 1rem 0;
+  }
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+  }
+  
+  .nav-item:hover {
+    background: rgba(255, 87, 34, 0.05);
+    color: var(--primary);
+  }
+  
+  .nav-item.active {
+    background: rgba(255, 87, 34, 0.1);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+  
+  .nav-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+  }
+  
+  /* Main Content Styles */
+  .dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .dashboard-header {
+    background: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-title h1 {
+    font-size: 1.5rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  
+  .header-title p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .search-bar {
+    position: relative;
+  }
+  
+  .search-bar input {
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    width: 250px;
+    transition: all 0.3s ease;
+  }
+  
+  .search-bar input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+  }
+  
+  .user-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .user-menu:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .user-role {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+  
+  /* User Dropdown Menu */
+  .user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    min-width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .user-menu:hover .user-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .dropdown-item:hover {
+    background: rgba(255, 87, 34, 0.05);
+    color: var(--primary);
+  }
+  
+  .dropdown-icon {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .logout-item {
+    color: var(--error);
+  }
+  
+  .logout-item:hover {
+    background: rgba(211, 47, 47, 0.05);
+    color: var(--error);
+  }
+  
+  /* Dashboard Content */
+  .dashboard-content {
+    padding: 2rem;
+    flex: 1;
+  }
+  
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+  }
+  
+  .icon-orders {
+    background: rgba(255, 87, 34, 0.1);
+    color: var(--primary);
+  }
+  
+  .icon-revenue {
+    background: rgba(57, 142, 60, 0.1);
+    color: var(--success);
+  }
+  
+  .icon-customers {
+    background: rgba(25, 118, 210, 0.1);
+    color: var(--info);
+  }
+  
+  .icon-rating {
+    background: rgba(245, 124, 0, 0.1);
+    color: var(--warning);
+  }
+  
+  .stat-info {
+    flex: 1;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+  
+  .stat-change {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+  
+  .change-positive {
+    color: var(--success);
+  }
+  
+  .change-negative {
+    color: var(--error);
+  }
+  
+  /* Content Grid */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  .content-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .card-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  
+  /* Table Styles */
+  .table-responsive {
+    overflow-x: auto;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .data-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  
+  .data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .data-table tr:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+  
+  .status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  .status-pending {
+    background: rgba(245, 124, 0, 0.1);
+    color: var(--warning);
+  }
+  
+  .status-completed {
+    background: rgba(57, 142, 60, 0.1);
+    color: var(--success);
+  }
+  
+  .status-cancelled {
+    background: rgba(211, 47, 47, 0.1);
+    color: var(--error);
+  }
+  
+  /* Activity List */
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .activity-item {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+  
+  .activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 87, 34, 0.1);
+    color: var(--primary);
+    flex-shrink: 0;
+  }
+  
+  .activity-content {
+    flex: 1;
+  }
+  
+  .activity-title {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  
+  .activity-desc {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  .activity-time {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Mobile Responsive */
+  @media (max-width: 1024px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-sidebar {
+      width: 70px;
+    }
+    
+    .brand-name, .nav-text {
+      display: none;
+    }
+    
+    .nav-item {
+      justify-content: center;
+      padding: 0.75rem;
+    }
+    
+    .nav-icon {
+      margin-right: 0;
+    }
+    
+    .dashboard-header {
+      padding: 1rem;
+    }
+    
+    .search-bar input {
+      width: 180px;
+    }
+    
+    .user-info {
+      display: none;
+    }
+    
+    .dashboard-content {
+      padding: 1rem;
+    }
+    
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .user-dropdown {
+      right: -50px;
+    }
+  }
+</style>
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-logo">F</div>
+        <div class="brand-name">FoodOnline</div>
+      </div>
+    </div>
+    
+    <div class="sidebar-nav">
+      <a href="#" class="nav-item active">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📦</span>
+        <span class="nav-text">Orders</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🍕</span>
+        <span class="nav-text">Menu Items</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👥</span>
+        <span class="nav-text">Customers</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">💰</span>
+        <span class="nav-text">Revenue</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📈</span>
+        <span class="nav-text">Analytics</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-text">Settings</span>
+      </a>
+      <!-- Logout na Sidebar -->
+      <a href="{% url 'logout' %}" class="nav-item">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-text">Logout</span>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="dashboard-main">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Dashboard</h1>
+        <p>Welcome back, {{ request.user.first_name|default:request.user.username }}! Here's what's happening today.</p>
+      </div>
+      
+      <div class="header-actions">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search...">
+        </div>
+        
+        <div class="user-menu">
+          <div class="user-avatar">
+            {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+          </div>
+          
+      <div class="user-info">
+        <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+        <div class="user-role">
+          {% if request.user.is_superuser %}
+            <span style="color: #d32f2f;">👑 Administrator</span>
+          {% else %}
+            {% if request.user.get_role == "Vendor" %}
+              <span style="color: #ff5722;">🏪 Vendor</span>
+            {% elif request.user.get_role == "Customer" %}
+              <span style="color: #1976d2;">👤 Customer</span>
+            {% else %}
+              <span>User</span>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+          
+          
+          <!-- Dropdown Menu -->
+          <div class="user-dropdown">
+            <a href="#" class="dropdown-item">
+              <span class="dropdown-icon">👤</span>
+              My Profile
+            </a>
+            <a href="#" class="dropdown-item">
+              <span class="dropdown-icon">⚙️</span>
+              Settings
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'logout' %}" class="dropdown-item logout-item">
+              <span class="dropdown-icon">🚪</span>
+              Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Mensagens de Alerta -->
+      {% include "includes/alerts.html" %}
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-orders">📦</div>
+          <div class="stat-info">
+            <div class="stat-value">142</div>
+            <div class="stat-label">Today's Orders</div>
+            <div class="stat-change change-positive">↑ 12% from yesterday</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon icon-revenue">💰</div>
+          <div class="stat-info">
+            <div class="stat-value">$3,847</div>
+            <div class="stat-label">Revenue</div>
+            <div class="stat-change change-positive">↑ 8% from last week</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon icon-customers">👥</div>
+          <div class="stat-info">
+            <div class="stat-value">89</div>
+            <div class="stat-label">New Customers</div>
+            <div class="stat-change change-positive">↑ 5% from last month</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon icon-rating">⭐</div>
+          <div class="stat-info">
+            <div class="stat-value">4.7</div>
+            <div class="stat-label">Average Rating</div>
+            <div class="stat-change change-negative">↓ 0.1 from last week</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Content Grid -->
+      <div class="content-grid">
+        <!-- Recent Orders -->
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="card-title">Recent Orders</h2>
+            <div class="card-actions">
+              <button class="btn-outline">View All</button>
+            </div>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#ORD-7842</td>
+                  <td>John Smith</td>
+                  <td>3 items</td>
+                  <td>$42.50</td>
+                  <td><span class="status status-completed">Completed</span></td>
+                </tr>
+                <tr>
+                  <td>#ORD-7841</td>
+                  <td>Sarah Johnson</td>
+                  <td>2 items</td>
+                  <td>$28.75</td>
+                  <td><span class="status status-pending">Preparing</span></td>
+                </tr>
+                <tr>
+                  <td>#ORD-7840</td>
+                  <td>Michael Brown</td>
+                  <td>5 items</td>
+                  <td>$67.20</td>
+                  <td><span class="status status-pending">On the way</span></td>
+                </tr>
+                <tr>
+                  <td>#ORD-7839</td>
+                  <td>Emily Davis</td>
+                  <td>1 item</td>
+                  <td>$15.99</td>
+                  <td><span class="status status-completed">Completed</span></td>
+                </tr>
+                <tr>
+                  <td>#ORD-7838</td>
+                  <td>Robert Wilson</td>
+                  <td>4 items</td>
+                  <td>$52.30</td>
+                  <td><span class="status status-cancelled">Cancelled</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="content-card">
+          <div class="card-header">
+            <h2 class="card-title">Recent Activity</h2>
+            <div class="card-actions">
+              <button class="btn-outline">See All</button>
+            </div>
+          </div>
+          
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon">📦</div>
+              <div class="activity-content">
+                <div class="activity-title">New Order Received</div>
+                <div class="activity-desc">Order #ORD-7842 from John Smith</div>
+                <div class="activity-time">10 minutes ago</div>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon">⭐</div>
+              <div class="activity-content">
+                <div class="activity-title">New Review Added</div>
+                <div class="activity-desc">Sarah Johnson rated your service 5 stars</div>
+                <div class="activity-time">45 minutes ago</div>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon">👥</div>
+              <div class="activity-content">
+                <div class="activity-title">New Customer Registered</div>
+                <div class="activity-desc">Michael Brown joined FoodOnline</div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon">💰</div>
+              <div class="activity-content">
+                <div class="activity-title">Payment Received</div>
+                <div class="activity-desc">Payment of $67.20 for order #ORD-7840</div>
+                <div class="activity-time">3 hours ago</div>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon">🍕</div>
+              <div class="activity-content">
+                <div class="activity-title">Menu Item Updated</div>
+                <div class="activity-desc">You updated the price of Margherita Pizza</div>
+                <div class="activity-time">5 hours ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Adicionar funcionalidade de menu ativo
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        // Prevenir comportamento padrão apenas para links com #
+        if (this.getAttribute('href') === '#') {
+          e.preventDefault();
+        }
+        navItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+    
+    // Simular dados atualizados em tempo real (para demonstração)
+    setInterval(() => {
+      const ordersValue = document.querySelector('.icon-orders').parentElement.querySelector('.stat-value');
+      const currentOrders = parseInt(ordersValue.textContent);
+      ordersValue.textContent = currentOrders + Math.floor(Math.random() * 3);
+    }, 10000);
+    
+    // Fechar dropdown ao clicar fora
+    document.addEventListener('click', function(e) {
+      const userMenu = document.querySelector('.user-menu');
+      if (!userMenu.contains(e.target)) {
+        userMenu.querySelector('.user-dropdown').style.opacity = '0';
+        userMenu.querySelector('.user-dropdown').style.visibility = 'hidden';
+      }
+    });
+  });
+</script>
+{% endblock content %}
